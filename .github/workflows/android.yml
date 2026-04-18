@@ -63,7 +63,7 @@ jobs:
 
       - name: Build
         run: |
-          cmake --build build --parallel 2>&1 | tail -50
+          cmake --build build --parallel --clean-first 2>&1 | tail -80
 
       - name: Package APK
         run: |

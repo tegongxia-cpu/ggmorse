@@ -64,7 +64,11 @@ IMGUI_IMPL_API void     ImGui_ImplOpenGL3_LoadState(int id);
             #error "Cannot detect OpenGL loader!"
         #endif
     #else
-        #define IMGUI_IMPL_OPENGL_LOADER_GL3W       // Default to GL3W
+        #define IMGUI_IMPL_OPENGL_ES2
+        #define IMGUI_IMPL_OPENGL_LOADER_GL3W
     #endif
+#else
+    #define IMGUI_IMPL_OPENGL_ES2
+    #define IMGUI_IMPL_OPENGL_LOADER_GL3W
 #endif
 
