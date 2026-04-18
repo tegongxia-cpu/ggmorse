@@ -87,6 +87,7 @@ if (GGMORSE_SUPPORT_SDL2)
 
         target_compile_definitions(imgui-sdl2 PUBLIC
             IMGUI_IMPL_OPENGL_ES2
+            IMGUI_IMPL_OPENGL_LOADER_GL3W
             )
 
         target_link_libraries(imgui-sdl2 PUBLIC
