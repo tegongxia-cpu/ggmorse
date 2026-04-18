@@ -70,6 +70,24 @@ if (GGMORSE_SUPPORT_SDL2)
             ${CMAKE_THREAD_LIBS_INIT}
             ${ADDITIONAL_LIBRARIES}
             )
+    elseif (ANDROID)
+        add_library(imgui-sdl2
+            imgui-extra/imgui_impl.cpp
+            imgui-extra/imgui_impl_sdl.cpp
+            imgui-extra/imgui_impl_opengl3.cpp
+            )
+
+        target_include_directories(imgui-sdl2 PRIVATE
+            imgui
+            imgui-extra
+            )
+
+        target_link_libraries(imgui-sdl2 PUBLIC
+            imgui
+            GLESv2
+            EGL
+            log
+            )
     elseif (EMSCRIPTEN)
         add_library(imgui-sdl2
             imgui-extra/imgui_impl.cpp
