@@ -195,7 +195,7 @@ int main(int argc, char** argv) {
     //int windowX = scale*570;
     //int windowY = scale*917;
 
-    const char * windowTitle = "GGMorse";
+    const char * windowTitle = "摩尔斯";
 
 #ifdef __EMSCRIPTEN__
     SDL_Renderer * renderer;
