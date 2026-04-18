@@ -12,15 +12,30 @@ jobs:
     steps:
       - name: Clone
         uses: actions/checkout@v4
-
-      - name: Get submodules
-        run: |
-          git submodule update --init --recursive
+        with:
+          submodules: recursive
 
       - name: Setup NDK
         uses: nttld/setup-ndk@v1
         with:
           ndk-version: r26b
+
+      - name: Build SDL2
+        run: |
+          # Clone and build SDL2 for Android
+          cd /tmp
+          git clone https://github.com/libsdl-org/SDL.git sdl2_src -b main --depth=1
+          mkdir sdl2_build
+          cd sdl2_build
+          cmake ../sdl2_src \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake \
+            -DANDROID_ABI=arm64-v8a \
+            -DANDROID_PLATFORM=android-21 \
+            -DBUILD_SHARED_LIBS=ON \
+            -DLIBSDL2Tests=OFF \
+            -DLIBSDL2Install=OFF
+          cmake --build . --parallel
 
       - name: Configure
         run: |
@@ -29,7 +44,8 @@ jobs:
             -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake \
             -DANDROID_ABI=arm64-v8a \
             -DANDROID_PLATFORM=android-21 \
-            -DGGMorse_BUILD_EXAMPLES=ON
+            -DGGMORSE_BUILD_EXAMPLES=ON \
+            -DCMAKE_PREFIX_PATH=/tmp/sdl2_build
 
       - name: Build
         run: |
@@ -37,7 +53,6 @@ jobs:
 
       - name: Package APK
         run: |
-          mkdir -p apk
-          cp build/examples/ggmorse-gui/*.so apk/ 2>/dev/null || true
-          ls build/examples/ggmorse-gui/ || true
+          mkdir -p apk_out
           find build -name "*.so" -exec echo {} \;
+          ls build/examples/ggmorse-gui/ 2>/dev/null || ls build/ 2>/dev/null
