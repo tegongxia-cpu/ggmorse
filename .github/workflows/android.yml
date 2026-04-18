@@ -63,6 +63,17 @@ jobs:
 
       - name: Build
         run: |
+          # Patch imgui_impl_opengl3.h before building to force ES2 mode
+          # imgui-extra submodule path
+          HEADER1="examples/third-party/imgui/imgui-extra/imgui_impl_opengl3.h"
+          # CMake fetched imgui source
+          HEADER2="build/_deps/imgui-src/imgui_impl_opengl3.h"
+          for H in "$HEADER1" "$HEADER2"; do
+            if [ -f "$H" ]; then
+              sed -i 's/#error "Cannot detect OpenGL loader!"/\\/\\/ Patched for Android ES2/' "$H"
+              echo "Patched: $H"
+            fi
+          done
           cmake --build build --parallel --clean-first 2>&1 | tail -80
 
       - name: Package APK
