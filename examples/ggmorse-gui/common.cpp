@@ -577,7 +577,7 @@ void renderMain() {
     const auto& displaySize = ImGui::GetIO().DisplaySize;
     auto& style = ImGui::GetStyle();
 
-    const auto sendButtonText = ICON_FA_PLAY_CIRCLE " Send";
+    const auto sendButtonText = ICON_FA_PLAY_CIRCLE " 发送";
     [[maybe_unused]] const double tShowKeyboard = 0.2f;
 #if defined(IOS)
     static float statusBarHeightDevice = getStatusBarHeightDevice();
@@ -617,7 +617,7 @@ void renderMain() {
 
         {
             auto posSave = ImGui::GetCursorScreenPos();
-            if (ImGui::ButtonSelectable(ICON_FA_MICROPHONE "  Rx", { 0.45f*ImGui::GetContentRegionAvailWidth(), menuButtonHeight }, windowId == WindowId::Rx)) {
+            if (ImGui::ButtonSelectable(ICON_FA_MICROPHONE "  接收", { 0.45f*ImGui::GetContentRegionAvailWidth(), menuButtonHeight }, windowId == WindowId::Rx)) {
                 windowId = WindowId::Rx;
             }
             auto radius = 0.3f*ImGui::GetTextLineHeight();
@@ -629,7 +629,7 @@ void renderMain() {
 
         {
             auto posSave = ImGui::GetCursorScreenPos();
-            if (ImGui::ButtonSelectable(ICON_FA_HEADPHONES "  Tx", { 1.00f*ImGui::GetContentRegionAvailWidth(), menuButtonHeight }, windowId == WindowId::Tx)) {
+            if (ImGui::ButtonSelectable(ICON_FA_HEADPHONES "  发射", { 1.00f*ImGui::GetContentRegionAvailWidth(), menuButtonHeight }, windowId == WindowId::Tx)) {
                 windowId = WindowId::Tx;
             }
             auto radius = 0.3f*ImGui::GetTextLineHeight();
@@ -647,12 +647,12 @@ void renderMain() {
 
     if (windowId == WindowId::Settings) {
         ImGui::BeginChild("Settings:main", ImGui::GetContentRegionAvail(), true, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
-        ImGui_TextCentered("GGMorse v1.3.6", false);
+        ImGui_TextCentered("GGMorse", false);
         ImGui::PushFont(ImGui::GetIO().Fonts->Fonts.back());
         ImGui::Text("%s", "");
-        ImGui_TextCentered("created by", true);
-        ImGui_TextCentered("  Georgi Gerganov, LZ2ZGJ", true);
-        ImGui_TextCentered("  Vladimir Gerganov, LZ2ZG", true);
+        ImGui_TextCentered("作者", true);
+        ImGui_TextCentered("  Georgi Gerganov, LZ2ZGJ  汉化：Openbuilds", true);
+        ImGui_TextCentered("  Vladimir Gerganov, LZ2ZG  汉化：Openbuilds", true);
         ImGui::Text("%s", "");
         ImGui::PopFont();
         ImGui::Separator();
@@ -667,13 +667,13 @@ void renderMain() {
             ImGui::Text("%s", "");
             ImGui::SetCursorScreenPos({ posSave.x + kLabelWidth, posSave.y });
             ImGui::PushTextWrapPos();
-            ImGui::TextDisabled("Rx settings");
+            ImGui::TextDisabled("接收设置");
             ImGui::PopTextWrapPos();
         }
 
         {
             auto posSave = ImGui::GetCursorScreenPos();
-            ImGui::Text("Frequency: ");
+            ImGui::Text("频率: ");
             ImGui::SetCursorScreenPos({ posSave.x + kLabelWidth, posSave.y });
         }
         {
@@ -683,7 +683,7 @@ void renderMain() {
             }
             auto posSave = ImGui::GetCursorScreenPos();
             ImGui::SetCursorScreenPos({ posSave.x + kLabelWidth, posSave.y });
-            if (ImGui::Checkbox("Auto##rxFrequency", &settings.isFrequencyAuto)) {
+            if (ImGui::Checkbox("自动##rxFrequency", &settings.isFrequencyAuto)) {
                 g_buffer.inputUI.flags.newParametersDecode = true;
             }
         }
@@ -691,7 +691,7 @@ void renderMain() {
         ImGui::Text("%s", "");
         {
             auto posSave = ImGui::GetCursorScreenPos();
-            ImGui::Text("Speed: ");
+            ImGui::Text("速度: ");
             ImGui::SetCursorScreenPos({ posSave.x + kLabelWidth, posSave.y });
         }
         {
@@ -701,7 +701,7 @@ void renderMain() {
             }
             auto posSave = ImGui::GetCursorScreenPos();
             ImGui::SetCursorScreenPos({ posSave.x + kLabelWidth, posSave.y });
-            if (ImGui::Checkbox("Auto##speed", &settings.isSpeedAuto)) {
+            if (ImGui::Checkbox("自动##speed", &settings.isSpeedAuto)) {
                 g_buffer.inputUI.flags.newParametersDecode = true;
             }
         }
@@ -753,11 +753,10 @@ void renderMain() {
             ImGui::Text("%s", "");
             ImGui::SetCursorScreenPos({ posSave.x + kLabelWidth, posSave.y });
             ImGui::PushTextWrapPos();
-            ImGui::TextDisabled("Tx settings");
+            ImGui::TextDisabled("发射设置");
             ImGui::PopTextWrapPos();
         }
 
-        //ImGui::Text("%s", "");
         //{
         //    auto posSave = ImGui::GetCursorScreenPos();
         //    ImGui::Text("%s", "");
@@ -772,7 +771,7 @@ void renderMain() {
         //}
         {
             auto posSave = ImGui::GetCursorScreenPos();
-            ImGui::Text("Volume: ");
+            ImGui::Text("音量: ");
             ImGui::SetCursorScreenPos({ posSave.x + kLabelWidth, posSave.y });
 
         }
@@ -814,21 +813,23 @@ void renderMain() {
 
         {
             auto posSave = ImGui::GetCursorScreenPos();
-            ImGui::Text("Frequency: ");
+            ImGui::Text("频率: ");
             ImGui::SetCursorScreenPos({ posSave.x + kLabelWidth, posSave.y });
         }
         {
             snprintf(buf, 64, "%5.1f Hz", settings.txFrequency_hz);
-            ImGui::DragFloat("##txFrequency", &settings.txFrequency_hz, 1, 200, 1900, buf);
+            if (ImGui::DragFloat("##txFrequency", &settings.txFrequency_hz, 1, 200, 1900, buf)) {
+                settings.txSpeedFarnsworth_wpm = settings.txSpeedCharacters_wpm;
+            }
         }
 
         {
             auto posSave = ImGui::GetCursorScreenPos();
-            ImGui::Text("Speed: ");
+            ImGui::Text("速度: ");
             ImGui::SetCursorScreenPos({ posSave.x + kLabelWidth, posSave.y });
         }
         {
-            snprintf(buf, 64, "Characters speed: %2d WPM", settings.txSpeedCharacters_wpm);
+            snprintf(buf, 64, "字符速度: %2d WPM", settings.txSpeedCharacters_wpm);
             if (ImGui::DragInt("##speedCharacters", &settings.txSpeedCharacters_wpm, 1, 5, 55, buf)) {
                 settings.txSpeedFarnsworth_wpm = settings.txSpeedCharacters_wpm;
             }
@@ -840,24 +841,25 @@ void renderMain() {
             ImGui::SetCursorScreenPos({ posSave.x + kLabelWidth, posSave.y });
         }
         {
-            snprintf(buf, 64, "Farnsworth speed: %2d WPM", settings.txSpeedFarnsworth_wpm);
-            ImGui::DragInt("##speedFarnsworth", &settings.txSpeedFarnsworth_wpm, 1, 5, 55, buf);
+            snprintf(buf, 64, "Farnsworth速度: %2d WPM", settings.txSpeedFarnsworth_wpm);
+            if (ImGui::DragInt("##speedFarnsworth", &settings.txSpeedFarnsworth_wpm, 1, 5, 55, buf)) {
+            }
         }
 
-        // Spectrogam settings
+        // Spectrogram settings
         ImGui::Text("%s", "");
         {
             auto posSave = ImGui::GetCursorScreenPos();
             ImGui::Text("%s", "");
             ImGui::SetCursorScreenPos({ posSave.x + kLabelWidth, posSave.y });
             ImGui::PushTextWrapPos();
-            ImGui::TextDisabled("Spectrogram settings");
+            ImGui::TextDisabled("频谱图设置");
             ImGui::PopTextWrapPos();
         }
 
         {
             auto posSave = ImGui::GetCursorScreenPos();
-            ImGui::Text("Min: ");
+            ImGui::Text("最小: ");
             ImGui::SetCursorScreenPos({ posSave.x + kLabelWidth, posSave.y });
         }
         {
@@ -869,7 +871,7 @@ void renderMain() {
 
         {
             auto posSave = ImGui::GetCursorScreenPos();
-            ImGui::Text("Max: ");
+            ImGui::Text("最大: ");
             ImGui::SetCursorScreenPos({ posSave.x + kLabelWidth, posSave.y });
         }
         {
@@ -881,7 +883,7 @@ void renderMain() {
 
         {
             auto posSave = ImGui::GetCursorScreenPos();
-            ImGui::Text("Intensity: ");
+            ImGui::Text("强度: ");
             ImGui::SetCursorScreenPos({ posSave.x + kLabelWidth, posSave.y });
         }
         {
@@ -889,7 +891,7 @@ void renderMain() {
         }
         {
             auto posSave = ImGui::GetCursorScreenPos();
-            ImGui::Text("Color Map: ");
+            ImGui::Text("色图: ");
             ImGui::SetCursorScreenPos({ posSave.x + kLabelWidth, posSave.y });
         }
         {
@@ -914,12 +916,12 @@ void renderMain() {
             ImGui::Text("%s", "");
             ImGui::SetCursorScreenPos({ posSave.x + kLabelWidth, posSave.y });
             ImGui::PushTextWrapPos();
-            ImGui::TextDisabled("Show signal plot");
+            ImGui::TextDisabled("显示信号图");
             ImGui::PopTextWrapPos();
         }
         {
             auto posSave = ImGui::GetCursorScreenPos();
-            ImGui::Text("Signal: ");
+            ImGui::Text("信号: ");
             ImGui::SetCursorScreenPos({ posSave.x + kLabelWidth, posSave.y });
         }
         {
@@ -932,12 +934,12 @@ void renderMain() {
             ImGui::Text("%s", "");
             ImGui::SetCursorScreenPos({ posSave.x + kLabelWidth, posSave.y });
             ImGui::PushTextWrapPos();
-            ImGui::TextDisabled("Show realtime stats");
+            ImGui::TextDisabled("显示实时统计");
             ImGui::PopTextWrapPos();
         }
         {
             auto posSave = ImGui::GetCursorScreenPos();
-            ImGui::Text("Stats: ");
+            ImGui::Text("统计: ");
             ImGui::SetCursorScreenPos({ posSave.x + kLabelWidth, posSave.y });
         }
         {
@@ -949,24 +951,24 @@ void renderMain() {
 
         {
             ImGui::Text("%s", "");
-            ImGui::TextDisabled("Debug information");
+            ImGui::TextDisabled("调试信息");
             ImGui::PushFont(ImGui::GetIO().Fonts->Fonts.back());
             ImGui::Text("%s", "");
-            ImGui::Text("Sample rate (capture):  %g, %d B/sample", statsCurrent.sampleRateInp, statsCurrent.sampleSizeBytesInp);
-            ImGui::Text("Sample rate (playback): %g, %d B/sample", statsCurrent.sampleRateOut, statsCurrent.sampleSizeBytesOut);
+            ImGui::Text("采样率(录音):  %g, %d B/sample", statsCurrent.sampleRateInp, statsCurrent.sampleSizeBytesInp);
+            ImGui::Text("采样率(播放): %g, %d B/sample", statsCurrent.sampleRateOut, statsCurrent.sampleSizeBytesOut);
             ImGui::Text("%s", "");
-            ImGui::Text("Estimated Pitch:  %6.2f Hz", statsCurrent.statistics.estimatedPitch_Hz);
-            ImGui::Text("Estimated Speed:  %6.2f WPM", statsCurrent.statistics.estimatedSpeed_wpm);
-            ImGui::Text("Signal threshold: %6.2f", statsCurrent.statistics.signalThreshold);
+            ImGui::Text("估计音调:  %6.2f Hz", statsCurrent.statistics.estimatedPitch_Hz);
+            ImGui::Text("估计速度:  %6.2f WPM", statsCurrent.statistics.estimatedSpeed_wpm);
+            ImGui::Text("信号阈值: %.2f", statsCurrent.statistics.signalThreshold);
             ImGui::Text("%s", "");
-            ImGui::Text("Time to resample input:    %6.2f ms", statsCurrent.statistics.timeResample_ms);
-            ImGui::Text("Time for pitch detection:  %6.2f ms", statsCurrent.statistics.timePitchDetection_ms);
-            ImGui::Text("Time for Goertzel filter:  %6.2f ms", statsCurrent.statistics.timeGoertzel_ms);
-            ImGui::Text("Time for frame analysis:   %6.2f ms", statsCurrent.statistics.timeFrameAnalysis_ms);
-            ImGui::Text("Time to draw last frame:   %6.2f ms", tLastFrame);
+            ImGui::Text("重采样耗时:    %6.2f ms", statsCurrent.statistics.timeResample_ms);
+            ImGui::Text("音调检测耗时:  %6.2f ms", statsCurrent.statistics.timePitchDetection_ms);
+            ImGui::Text("Goertzel滤波耗时:  %6.2f ms", statsCurrent.statistics.timeGoertzel_ms);
+            ImGui::Text("帧分析耗时:   %6.2f ms", statsCurrent.statistics.timeFrameAnalysis_ms);
+            ImGui::Text("渲染耗时:   %6.2f ms", tLastFrame);
             ImGui::Text("%s", "");
-            ImGui::Text("Application framerate: %6.2f fps", ImGui::GetIO().Framerate);
-            ImGui::Text("Status bar height:     %6.2f px", statusBarHeight);
+            ImGui::Text("应用帧率: %.2f fps", ImGui::GetIO().Framerate);
+            ImGui::Text("状态栏高度: %.2f px", statusBarHeight);
             ImGui::PopFont();
         }
 
@@ -986,8 +988,8 @@ void renderMain() {
 
         if (hasAudioCaptureData == false) {
             ImGui::Text("%s", "");
-            ImGui::TextColored({ 1.0f, 0.0f, 0.0f, 1.0f }, "No capture data available!");
-            ImGui::TextColored({ 1.0f, 0.0f, 0.0f, 1.0f }, "Please make sure you have allowed microphone access for this app.");
+            ImGui::TextColored({ 1.0f, 0.0f, 0.0f, 1.0f }, "无音频数据！");
+            ImGui::TextColored({ 1.0f, 0.0f, 0.0f, 1.0f }, "请确保已开启麦克风权限。");
         } else {
             {
                 settings.nBins = (int) spectrogramCurrent[0].size()/2;
@@ -1219,32 +1221,32 @@ void renderMain() {
 
                 if (ImGui::IsMouseReleased(0) && isHoldingDown) {
                     auto pos = ImGui::GetMousePos();
-                    pos.x -= 1.0f*ImGui::CalcTextSize("Clear | Copy").x;
+                    pos.x -= 1.0f*ImGui::CalcTextSize("清除 | 复制").x;
                     pos.y -= 1.0f*ImGui::GetTextLineHeightWithSpacing();
                     ImGui::SetNextWindowPos(pos);
 
-                    ImGui::OpenPopup("Rx options");
+                    ImGui::OpenPopup("接收选项");
                     isHoldingDown = false;
                     isContextMenuOpen = true;
                 }
 
-                if (ImGui::BeginPopup("Rx options")) {
+                if (ImGui::BeginPopup("接收选项")) {
                     ImGui::PushItemWidth(0.5*mainSize.x);
 
-                    ImGui::DragFloat("##height", &rxDataHeight, 0.1f, 4.0f, rxDataHeightMax, "Rx height: %.1f", 1.0f);
-                    ImGui::DragFloat("##fontScale", &rxFontScale, 0.01f, 0.8f, 2.0f, "Font scale: %.2f", 1.0f);
+                    ImGui::DragFloat("##height", &rxDataHeight, 0.1f, 4.0f, rxDataHeightMax, "接收区高度: %.1f", 1.0f);
+                    ImGui::DragFloat("##fontScale", &rxFontScale, 0.01f, 0.8f, 2.0f, "字体大小: %.2f", 1.0f);
 
                     ImGui::PopItemWidth();
 
                     ImGui::Separator();
 
-                    if (ImGui::ButtonDisablable("Clear", {}, false)) {
+                    if (ImGui::ButtonDisablable("清除", {}, false)) {
                         rxData.clear();
                         ImGui::CloseCurrentPopup();
                     }
 
                     ImGui::SameLine();
-                    if (ImGui::ButtonDisablable("Copy", {}, false)) {
+                    if (ImGui::ButtonDisablable("复制", {}, false)) {
                         SDL_SetClipboardText(rxData.c_str());
                         ImGui::CloseCurrentPopup();
                     }
@@ -1337,7 +1339,7 @@ void renderMain() {
                         pos0.x += style.ItemInnerSpacing.x;
                         pos0.y += 0.5*style.ItemInnerSpacing.y;
                         static char tmp[128];
-                        snprintf(tmp, 128, "Type some text");
+                        snprintf(tmp, 128, "输入文字");
                         drawList->AddText(pos0, ImGui::ColorConvertFloat4ToU32({0.0f, 0.6f, 0.4f, 1.0f}), tmp);
                     }
                 }
@@ -1360,16 +1362,16 @@ void renderMain() {
 
                 if (ImGui::IsMouseReleased(0) && isHoldingInput) {
                     auto pos = ImGui::GetMousePos();
-                    pos.x -= 2.0f*ImGui::CalcTextSize("Paste").x;
+                    pos.x -= 2.0f*ImGui::CalcTextSize("粘贴").x;
                     pos.y -= 1.0f*ImGui::GetTextLineHeightWithSpacing();
                     ImGui::SetNextWindowPos(pos);
 
-                    ImGui::OpenPopup("Input options");
+                    ImGui::OpenPopup("输入选项");
                     isHoldingInput = false;
                 }
 
-                if (ImGui::BeginPopup("Input options")) {
-                    if (ImGui::Button("Paste")) {
+                if (ImGui::BeginPopup("输入选项")) {
+                    if (ImGui::Button("粘贴")) {
                         for (int i = 0; i < kMaxInputSize; ++i) inputBuf[i] = 0;
                         strncpy(inputBuf, SDL_GetClipboardText(), kMaxInputSize - 1);
                         ImGui::CloseCurrentPopup();
