@@ -80,6 +80,11 @@ if (GGMORSE_SUPPORT_SDL2)
         target_include_directories(imgui-sdl2 PRIVATE
             imgui
             imgui-extra
+            ${SDL2_INCLUDE_DIRS}
+            )
+
+        target_compile_definitions(imgui-sdl2 PRIVATE
+            IMGUI_IMPL_OPENGL_ES2
             )
 
         target_link_libraries(imgui-sdl2 PUBLIC
@@ -87,6 +92,7 @@ if (GGMORSE_SUPPORT_SDL2)
             GLESv2
             EGL
             log
+            ${SDL2_LIBRARIES}
             )
     elseif (EMSCRIPTEN)
         add_library(imgui-sdl2

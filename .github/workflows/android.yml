@@ -37,10 +37,17 @@ jobs:
           cmake --build . --parallel
           cmake --install .
 
+          # Verify what was installed
+          find /tmp/sdl2_install -type f | head -20
+
       - name: Configure
         run: |
           SDL2_CMAKE_DIR=$(find /tmp/sdl2_install -name "SDL2Config.cmake" 2>/dev/null | head -1 | xargs dirname)
+          SDL2_INCLUDE=$(find /tmp/sdl2_install -name "SDL.h" 2>/dev/null | head -1 | xargs dirname)
+          SDL2_LIB=$(find /tmp/sdl2_install -name "libSDL2*.so" 2>/dev/null | head -1)
           echo "SDL2 cmake dir: $SDL2_CMAKE_DIR"
+          echo "SDL2 include: $SDL2_INCLUDE"
+          echo "SDL2 lib: $SDL2_LIB"
           cmake -B build \
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake \
@@ -48,12 +55,15 @@ jobs:
             -DANDROID_PLATFORM=android-21 \
             -DGGMORSE_BUILD_EXAMPLES=ON \
             -DSDL2_DIR="$SDL2_CMAKE_DIR" \
+            -DSDL2_INCLUDE_DIRS="$SDL2_INCLUDE" \
+            -DSDL2_LIBRARIES="$SDL2_LIB" \
             -DSDL2_TESTS=OFF \
-            -DSDL2_INSTALL_TESTS=OFF
+            -DSDL2_INSTALL_TESTS=OFF \
+            -DGGMORSE_BUILD_TESTS=OFF
 
       - name: Build
         run: |
-          cmake --build build --parallel
+          cmake --build build --parallel 2>&1 | tail -50
 
       - name: Package APK
         run: |
