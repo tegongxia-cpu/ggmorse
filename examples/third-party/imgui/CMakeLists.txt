@@ -81,9 +81,11 @@ if (GGMORSE_SUPPORT_SDL2)
             imgui
             imgui-extra
             ${SDL2_INCLUDE_DIRS}
+            ${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include
+            ${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include/OpenGL
             )
 
-        target_compile_definitions(imgui-sdl2 PRIVATE
+        target_compile_definitions(imgui-sdl2 PUBLIC
             IMGUI_IMPL_OPENGL_ES2
             )
 
