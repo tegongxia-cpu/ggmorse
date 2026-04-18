@@ -39,13 +39,15 @@ jobs:
 
       - name: Configure
         run: |
+          SDL2_CMAKE_DIR=$(find /tmp/sdl2_install -name "SDL2Config.cmake" 2>/dev/null | head -1 | xargs dirname)
+          echo "SDL2 cmake dir: $SDL2_CMAKE_DIR"
           cmake -B build \
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake \
             -DANDROID_ABI=arm64-v8a \
             -DANDROID_PLATFORM=android-21 \
             -DGGMORSE_BUILD_EXAMPLES=ON \
-            -DCMAKE_PREFIX_PATH=/tmp/sdl2_install
+            -DSDL2_DIR="$SDL2_CMAKE_DIR"
 
       - name: Build
         run: |
