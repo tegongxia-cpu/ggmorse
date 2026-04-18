@@ -20,7 +20,6 @@ jobs:
         with:
           ndk-version: r26b
 
-      - name: Build SDL2
       - name: Build SDL2 for Android
         run: |
           cd /tmp
