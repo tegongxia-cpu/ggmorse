@@ -23,7 +23,7 @@ jobs:
       - name: Build SDL2 for Android
         run: |
           cd /tmp
-          git clone https://github.com/libsdl-org/SDL.git sdl2_src -b main --depth=1
+          git clone https://github.com/libsdl-org/SDL.git sdl2_src -b SDL2-2.30.x --depth=1
           mkdir sdl2_build
           cd sdl2_build
           cmake ../sdl2_src \
