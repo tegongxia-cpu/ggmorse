@@ -4,7 +4,7 @@
 #include "imgui-extra/imgui_impl_opengl3.h"
 
 #if defined(IMGUI_IMPL_OPENGL_LOADER_GL3W)
-#include <GL/gl3w.h>    // Initialize with gl3wInit()
+// [PATCHED Android] #include <GL/gl3w.h>
 #elif defined(IMGUI_IMPL_OPENGL_LOADER_GLEW)
 #include <GL/glew.h>    // Initialize with glewInit()
 #elif defined(IMGUI_IMPL_OPENGL_LOADER_GLAD)
@@ -64,7 +64,7 @@ ImGuiContext* ImGui_Init(SDL_Window* window, SDL_GLContext gl_context) {
     if (!isInitialized) {
         // Initialize OpenGL loader
 #if defined(IMGUI_IMPL_OPENGL_LOADER_GL3W)
-        bool err = gl3wInit() != 0;
+        bool err = false; // [PATCHED Android] gl3wInit() not available on GLES2
 #elif defined(IMGUI_IMPL_OPENGL_LOADER_GLEW)
         bool err = glewInit() != GLEW_OK;
 #elif defined(IMGUI_IMPL_OPENGL_LOADER_GLAD)
