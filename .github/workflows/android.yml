@@ -63,28 +63,89 @@ jobs:
 
       - name: Build
         run: |
-          # Patch imgui_impl_opengl3.h to force ES2 mode (avoid sed ! issues)
-          python3 -c "
+          # Deep-patch imgui source for Android GLES2
+          python3 << 'PYEOF'
           import os, re
-          for root, dirs, files in os.walk('.'):
-            for f in files:
-              if f == 'imgui_impl_opengl3.h':
-                path = os.path.join(root, f)
-                with open(path, 'r') as fh:
-                  content = fh.read()
-                if '#error \"Cannot detect OpenGL loader!\"' in content:
-                  new_content = content.replace(
-                    '#error \"Cannot detect OpenGL loader!\"',
-                    '// PATCHED: Android ES2'
-                  )
-                  with open(path, 'w') as fh:
-                    fh.write(new_content)
-                  print(f'Patched: {path}')
-          "
-          cmake --build build --parallel --clean-first 2>&1 | tail -60
+
+          for root, dirs, files in os.walk('examples/third-party/imgui'):
+              for f in files:
+                  path = os.path.join(root, f)
+                  try:
+                      with open(path, 'r', encoding='utf-8') as fh:
+                          content = fh.read()
+                  except UnicodeDecodeError:
+                      with open(path, 'r', encoding='latin-1') as fh:
+                          content = fh.read()
+
+                  changed = False
+
+                  # imgui_impl.cpp: remove #include GL/gl3w.h and gl3wInit()
+                  if f == 'imgui_impl.cpp':
+                      new_content = content.replace(
+                          '#include <GL/gl3w.h>    // Initialize with gl3wInit()',
+                          '// [PATCHED Android] #include <GL/gl3w.h>'
+                      )
+                      if new_content != content:
+                          content = new_content
+                          changed = True
+                          print(f'Patched GL/gl3w.h include in: {path}')
+                      
+                      new_content = content.replace(
+                          'bool err = gl3wInit() != 0;',
+                          'bool err = false; // [PATCHED Android] gl3wInit() not available on GLES2'
+                      )
+                      if new_content != content:
+                          content = new_content
+                          changed = True
+                          print(f'Patched gl3wInit() call in: {path}')
+
+                  # imgui_impl_opengl3.h: comment out #error about GL loader
+                  if f == 'imgui_impl_opengl3.h':
+                      new_content = content.replace(
+                          '#error "Cannot detect OpenGL loader!"',
+                          '// [PATCHED Android] #error "Cannot detect OpenGL loader!"'
+                      )
+                      if new_content != content:
+                          content = new_content
+                          changed = True
+                          print(f'Patched #error in: {path}')
+
+                  if changed:
+                      with open(path, 'w', encoding='utf-8') as fh:
+                          fh.write(content)
+
+          # Also patch the wrong include path in common.cpp
+          common_cpp = 'examples/ggmorse-gui/common.cpp'
+          if os.path.exists(common_cpp):
+              with open(common_cpp, 'r', encoding='utf-8') as fh:
+                  c = fh.read()
+              # The file has #include "imgui-wrapper/icons_font_awesome.h"
+              # but imgui-wrapper is not a submodule; the file is at examples/ggmorse-gui/icons_font_awesome.h
+              new_c = c.replace(
+                  '#include "imgui-wrapper/icons_font_awesome.h"',
+                  '// [PATCHED Android] #include "imgui-wrapper/icons_font_awesome.h"'
+              )
+              if new_c != c:
+                  with open(common_cpp, 'w', encoding='utf-8') as fh:
+                      fh.write(new_c)
+                  print(f'Patched imgui-wrapper include in: {common_cpp}')
+
+          print("Patching complete")
+          PYEOF
+
+          cmake --build build --parallel --clean-first
 
       - name: Package APK
         run: |
-          mkdir -p apk_out
           find build -name "*.so" -exec echo {} \;
-          ls build/examples/ggmorse-gui/ 2>/dev/null || ls build/ 2>/dev/null
+          find build -name "ggmorse-gui" -type f -executable -exec echo "Found: {}" \;
+          ls -la build/examples/ggmorse-gui/ 2>/dev/null || echo "ggmorse-gui dir not found"
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: ggmorse-android
+          path: |
+            build/examples/ggmorse-gui/*.apk
+            build/examples/ggmorse-gui/ggmorse-gui
+            build/examples/ggmorse-gui/libggmorse-gui.so
