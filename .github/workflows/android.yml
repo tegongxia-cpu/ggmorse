@@ -133,7 +133,7 @@ jobs:
           print("Patching complete")
           PYEOF
 
-          cmake --build build --parallel --clean-first
+          cmake --build build --parallel 
 
       - name: Package APK
         run: |
